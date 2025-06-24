@@ -1,16 +1,17 @@
 const Produto = require('../models/produtoModel');
 const Categoria = require('../models/categoriaModel');
+const Tempo = require('../models/tempoModel'); // <- IMPORTADO AQUI
 
 const produtoController = {
 
     createProduto: (req, res) => {
-
         const newProduto = {
             nome: req.body.nome,
             descricao: req.body.descricao,
             preco: req.body.preco,
             quantidade: req.body.quantidade,
-            categoria: req.body.categoria
+            categoria: req.body.categoria,
+            tempo: req.body.tempo // se estiver usando esse campo na criação
         };
 
         Produto.create(newProduto, (err, produtoId) => {
@@ -34,10 +35,10 @@ const produtoController = {
             res.render('produtos/show', { produto });
         });
     },
-    
+
     getAllProdutos: (req, res) => {
         const categoria = req.query.categoria || null;
-        
+
         Produto.getAll(categoria, (err, produtos) => {
             if (err) {
                 return res.status(500).json({ error: err });
@@ -56,7 +57,14 @@ const produtoController = {
             if (err) {
                 return res.status(500).json({ error: err });
             }
-            res.render('produtos/create', { categorias });
+
+            Tempo.getAll((err, tempos) => {
+                if (err) {
+                    return res.status(500).json({ error: err });
+                }
+
+                res.render('produtos/create', { categorias, tempos });
+            });
         });
     },
 
@@ -75,20 +83,28 @@ const produtoController = {
                 if (err) {
                     return res.status(500).json({ error: err });
                 }
-                res.render('produtos/edit', { produto, categorias });
+
+                Tempo.getAll((err, tempos) => {
+                    if (err) {
+                        return res.status(500).json({ error: err });
+                    }
+
+                    res.render('produtos/edit', { produto, categorias, tempos });
+                });
             });
         });
     },
 
     updateProduto: (req, res) => {
         const produtoId = req.params.id;
-        
+
         const updatedProduto = {
             nome: req.body.nome,
             descricao: req.body.descricao,
             preco: req.body.preco,
             quantidade: req.body.quantidade,
-            categoria: req.body.categoria
+            categoria: req.body.categoria,
+            tempo: req.body.tempo // se esse campo existir no banco
         };
 
         Produto.update(produtoId, updatedProduto, (err) => {

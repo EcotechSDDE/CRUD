@@ -25,4 +25,12 @@
             <% }); %>
         </select>
     </div>
+    <div class="form-group">
+        <label for="tempo_id">Tempo</label>
+        <select class="form-control" id="tempo" name="tempo" required>
+            <% tempos.forEach(function(tempo) { %>
+                <option value="<%= tempo.id %>" <%= produto.tempo == tempo.id ? 'selected' : '' %>><%= tempo.nome %></option>
+            <% }); %>
+        </select>
+    </div>
     <button type="submit" class="btn btn-warning">Salvar</button>
