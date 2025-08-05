@@ -1,99 +1,94 @@
 const Usuario = require('../models/usuarioModel');
+const { Op } = require('sequelize');
 
 const usuarioController = {
-    createUsuario: (req, res) => {
-        const newUsuario = {
-            usuarioname: req.body.usuarioname,
-            password: req.body.password,
-            role: req.body.role,
-        };
+  createUsuario: async (req, res) => {
+    try {
+      const newUsuario = {
+        usuarioname: req.body.usuarioname,
+        password: req.body.password,
+        role: req.body.role
+      };
+      await Usuario.create(newUsuario);
+      res.redirect('/usuarios');
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-        Usuario.create(newUsuario, (err, usuarioId) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            res.redirect('/usuarios');
-        });
-    },
+  getUsuarioById: async (req, res) => {
+    try {
+      const usuario = await Usuario.findByPk(req.params.id);
+      if (!usuario) return res.status(404).json({ message: 'Usuario not found' });
+      res.render('usuarios/show', { usuario });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-    getUsuarioById: (req, res) => {
-        const usuarioId = req.params.id;
+  getAllUsuarios: async (req, res) => {
+    try {
+      const usuarios = await Usuario.findAll();
+      res.render('usuarios/index', { usuarios });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-        Usuario.findById(usuarioId, (err, usuario) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            if (!usuario) {
-                return res.status(404).json({ message: 'Usuario not found' });
-            }
-            res.render('usuarios/show', { usuario });
-        });
-    },
+  renderCreateForm: (req, res) => res.render('usuarios/create'),
 
-    getAllUsuarios: (req, res) => {
-        Usuario.getAll((err, usuarios) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            res.render('usuarios/index', { usuarios });
-        });
-    },
+  renderEditForm: async (req, res) => {
+    try {
+      const usuario = await Usuario.findByPk(req.params.id);
+      if (!usuario) return res.status(404).json({ message: 'Usuario not found' });
+      res.render('usuarios/edit', { usuario });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-    renderCreateForm: (req, res) => {
-        res.render('usuarios/create');
-    },
+  updateUsuario: async (req, res) => {
+    try {
+      const [updated] = await Usuario.update(
+        {
+          usuarioname: req.body.usuarioname,
+          password: req.body.password,
+          role: req.body.role
+        },
+        { where: { id: req.params.id } }
+      );
+      if (updated === 0) return res.status(404).json({ message: 'Usuario not found' });
+      res.redirect('/usuarios');
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-    renderEditForm: (req, res) => {
-        const usuarioId = req.params.id;
+  deleteUsuario: async (req, res) => {
+    try {
+      const deleted = await Usuario.destroy({ where: { id: req.params.id } });
+      if (deleted === 0) return res.status(404).json({ message: 'Usuario not found' });
+      res.redirect('/usuarios');
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
-        Usuario.findById(usuarioId, (err, usuario) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            if (!usuario) {
-                return res.status(404).json({ message: 'Usuario not found' });
-            }
-            res.render('usuarios/edit', { usuario });
-        });
-    },
-
-    updateUsuario: (req, res) => {
-        const usuarioId = req.params.id;
-        const updatedUsuario = {
-            usuarioname: req.body.usuarioname,
-            password: req.body.password,
-            role: req.body.role,
-        };
-
-        Usuario.update(usuarioId, updatedUsuario, (err) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            res.redirect('/usuarios');
-        });
-    },
-
-    deleteUsuario: (req, res) => {
-        const usuarioId = req.params.id;
-
-        Usuario.delete(usuarioId, (err) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            res.redirect('/usuarios');
-        });
-    },
-
-    searchUsuarios: (req, res) => {
-        const search = req.query.search || '';
-
-        Usuario.searchByName(search, (err, usuarios) => {
-            if (err) {
-                return res.status(500).json({ error: err });
-            }
-            res.json({ usuarios });
-        });
-    },
+  searchUsuarios: async (req, res) => {
+    try {
+      const search = req.query.search || '';
+      const usuarios = await Usuario.findAll({
+        where: {
+          usuarioname: {
+            [Op.like]: `%${search}%`
+          }
+        }
+      });
+      res.json({ usuarios });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 };
 
 module.exports = usuarioController;
