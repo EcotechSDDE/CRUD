@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Categoria = require('./categoriaModel');  // Import correto
-const Tempo = require('./tempoModel');          // Import correto
+const Categoria = require('./categoriaModel');
+const Tempo = require('./tempoModel');
 
 const Produto = sequelize.define('Produto', {
   id: {
@@ -46,8 +46,8 @@ const Produto = sequelize.define('Produto', {
   timestamps: false
 });
 
-// Associações (models válidos)
-Produto.belongsTo(Categoria, { foreignKey: 'categoria_id' });
-Produto.belongsTo(Tempo, { foreignKey: 'tempo_id' });
+// Associações com alias corretos
+Produto.belongsTo(Categoria, { foreignKey: 'categoria_id', as: 'categoria' });
+Produto.belongsTo(Tempo, { foreignKey: 'tempo_id', as: 'tempo' });
 
 module.exports = Produto;

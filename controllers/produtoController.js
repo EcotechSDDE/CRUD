@@ -10,7 +10,8 @@ exports.getAllProdutos = async (req, res) => {
         { model: Tempo, as: 'tempo' }
       ]
     });
-    res.render('produtos/index', { produtos });
+    const categorias = await Categoria.findAll();
+    res.render('produtos/index', { produtos, categorias, categoriaSelecionada: null });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -58,6 +59,7 @@ exports.getProdutoById = async (req, res) => {
       return res.status(404).send('Produto não encontrado');
     }
 
+    console.log(JSON.stringify(produto, null, 2)); // <-- Adicione aqui
     res.render('produtos/show', { produto });
   } catch (error) {
     res.status(500).json({ error: error.message });
