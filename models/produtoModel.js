@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Categoria = require('./Categoria'); // Importa para criar relação
+const Categoria = require('./categoriaModel');  // Import correto
+const Tempo = require('./tempoModel');          // Import correto
 
 const Produto = sequelize.define('Produto', {
   id: {
@@ -13,7 +14,8 @@ const Produto = sequelize.define('Produto', {
     allowNull: false
   },
   descricao: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: false
   },
   preco: {
     type: DataTypes.FLOAT,
@@ -23,10 +25,19 @@ const Produto = sequelize.define('Produto', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  categoria: {
+  categoria_id: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
       model: Categoria,
+      key: 'id'
+    }
+  },
+  tempo_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Tempo,
       key: 'id'
     }
   }
@@ -35,7 +46,8 @@ const Produto = sequelize.define('Produto', {
   timestamps: false
 });
 
-// Relação N:1
-Produto.belongsTo(Categoria, { foreignKey: 'categoria' });
+// Associações (models válidos)
+Produto.belongsTo(Categoria, { foreignKey: 'categoria_id' });
+Produto.belongsTo(Tempo, { foreignKey: 'tempo_id' });
 
 module.exports = Produto;

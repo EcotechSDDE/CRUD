@@ -1,6 +1,6 @@
 const express = require('express');
-const tempoController = require('../controllers/tempoController');
 const router = express.Router();
+const tempoController = require('../controllers/tempoController');
 
 router.get('/', tempoController.getAllTempos);
 router.get('/new', tempoController.renderCreateForm);
